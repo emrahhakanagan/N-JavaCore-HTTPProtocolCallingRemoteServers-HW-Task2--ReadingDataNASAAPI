@@ -8,6 +8,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -46,12 +47,21 @@ public class NasaContentDownloader {
         URL url = new URL(urlString);
         String fileName = url.getPath().substring(url.getPath().lastIndexOf('/') + 1);
 
-        // Удаляем параметры запроса из URL и заменяем недопустимые символы
         fileName = fileName.replaceAll("\\?.*$", "").replaceAll("[\\\\/:*?\"<>|]", "_");
 
-        // Указываем путь к директории для сохранения файлов
-        String saveDirectory = "downloaded_files/";
-        String fullPath = saveDirectory + fileName;
+        String saveDirectoryName = "downloaded_files/";
+        File directorySavingFiles = new File(saveDirectoryName);
+
+        if (!directorySavingFiles.exists()) {
+            boolean wasCreatedDirectory = directorySavingFiles.mkdir();
+            if (!wasCreatedDirectory) {
+                System.out.println();
+                throw new IOException("Directory for downloading: " + directorySavingFiles.getAbsolutePath()
+                        + "could not created!");
+            }
+        }
+
+        String fullPath = directorySavingFiles + File.separator + fileName;
 
         try (CloseableHttpClient httpClient = HttpClientBuilder.create().build();
              CloseableHttpResponse response = httpClient.execute(new HttpGet(urlString));

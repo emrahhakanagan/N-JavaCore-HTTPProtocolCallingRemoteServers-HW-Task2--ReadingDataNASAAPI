@@ -9,7 +9,6 @@ public class NasaResponse {
     @JsonProperty("url")
     private String url;
 
-    // Геттеры и сеттеры
     public String getUrl() {
         return url;
     }
